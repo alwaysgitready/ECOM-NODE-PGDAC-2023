@@ -209,7 +209,7 @@ exports.userLogin = (req,res) =>{
                     }
                     else
                     {
-                            res.status(200).send({ status : 200 ,  message  :"Login Successfully "  , data : {name   : result[0].name  , _id   :result[0]._id  , mobile  : result[0].mobile ,  email   :result[0].email}})
+                            res.status(200).send({ status : 200 ,  message  :"Login Successfully "  , data : {name   : result[0].name  , _id   :result[0]._id  , mobile  : result[0].mobile ,  email   :result[0].email  ,  role : result[0].role }})
 
                     }
                 }
@@ -800,45 +800,6 @@ exports.getCartWithFullDetails=  (req,res) =>{
 
 
 
-
-exports.addProduct  =  (req,res) =>{
-
-    const {name , price , discount , category, description , image ,  rating}  = req.body;
-
-
-    ProductSchema.insertMany({name : name , price : price , discount : discount, category :  category , description :  description ,  image : image , rating :rating}).then
-    ((result)=>{
-        if(result.length  > 0 )
-        {
-            res.status(200).send({status :200, message : "Product Added Successfully "})
-        }
-        else{
-
-            res.status(200).send({status :200, message : "Product Not Added || Please Try Again "})
-
-        }
-    }).catch((err)=>{
-
-
-if(err.name == 'ValidationError')
-        {
-            res.status(400).send({ status : 400, message  :`${err.message.split(":")[1].trim().toUpperCase()} is Required For Registration `})
-        }
-        else if(err.name == 'MongoBulkWriteError' && err.code  == 11000){
-            let a  =  err.message.split(":")[3].replace("{" , "").trim().toUpperCase();
-            let b  =  err.message.split(":")[4].replace("}","").replace('"' , "").replace('"' , "");
-
-            res.status(400).send({  status :  400, message  :`Product Already Added with this ${a} : ${b}`})
-
-        }
-        else
-        {
-
-            res.status(500).send({ status: 500, message : "Something Went Wrong" })
-        }
-    })
-
-}
 
 
 exports.getAllProducts = (req,res) =>{
