@@ -3,6 +3,7 @@
 const ProductSchema  = require('../Schemas/Products')
 const OrderSchema = require('../Schemas/OrderSchema')
 const UserSchema  = require('../Schemas/UserSchema')
+const AddressSchema  = require('../Schemas/AddressSchema')
 
 
 
@@ -143,5 +144,53 @@ exports.getDashBoardData  = async (req,res) =>{
 
 }
 
+
+exports.getallOrders = (req,res) =>{
+
+OrderSchema.find({}).then((result)=>{
+
+    res.status(200).send({status :  200 , data  :  result})
+
+}).catch((err)=>{
+    res.status(500).send({status :  500 , messgae : "Something Went Wrong"})
+
+})
+
+
+
+}
+
+
+
+exports.getUserDetailsById = (req,res) =>{
+
+    const {u_id}  = req.query
+
+    UserSchema.findOne({_id :  u_id}).then((result)=>{
+
+     res.status(200).send({status : 200 , data  : result})
+        
+    }).catch((err)=>{
+        res.status(500).send({status :  500 , messgae : "Something Went Wrong"})
+    
+    })
+
+}
+
+
+exports.getDeliveryAddressById = (req,res) =>{
+
+    const {address_id} =  req.query 
+
+    AddressSchema.findOne({_id :  address_id}).then((result)=>{
+
+        res.status(200).send({status : 200 , data  : result})
+           
+       }).catch((err)=>{
+           res.status(500).send({status :  500 , messgae : "Something Went Wrong"})
+       
+       })
+
+}
 
 

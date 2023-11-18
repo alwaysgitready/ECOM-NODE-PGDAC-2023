@@ -1,6 +1,7 @@
 const express  = require('express');
 const router  =  express.Router()
 const Controllers  =  require('../Controllers/UserController')
+const upload = require('../MiddleWare/uploads')
 
 
 router.get('/' ,Controllers.CallRootPath)
@@ -21,6 +22,18 @@ router.post('/handleQuantity', Controllers.handeQuantity)
 router.get('/get-user-addresses', Controllers.getUserAddresses)
 router.post('/add-user-addresses', Controllers.addAddress)
 router.post('/purchase_order', Controllers.purchaseOrder)
+router.get('/get-my-orders', Controllers.getMyOrders)
+
+
+
+
+
+// Demo Api's
+
+
+router.get( '/check-odd-even'  , Controllers.filterOddEven ,  Controllers.showOddEvenResult)
+
+router.post('/image-upload'  , upload.single('img')  , Controllers.fetchimageData)
 
 
 

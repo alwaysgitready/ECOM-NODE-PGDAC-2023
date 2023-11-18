@@ -765,6 +765,24 @@ exports.getCartItemsByUSerId  = (req,res) =>{
 }
 
 
+exports.getMyOrders = (req,res) =>{
+
+    const {u_id}  = req.query
+
+    OrderSchema.find({ u_id : u_id }).then((result)=>{
+    
+        res.status(200).send({status :  200 , data  :  result})
+    
+    }).catch((err)=>{
+        res.status(500).send({status :  500 , messgae : "Something Went Wrong"})
+    
+    })
+    
+    
+    
+    }
+
+
 
 exports.getCartWithFullDetails=  (req,res) =>{
 
@@ -910,4 +928,54 @@ exports.purchaseOrder = (req,res)=>{
 
     })
 
+}
+
+
+
+exports.filterOddEven = (req,res ,  next) =>{
+
+    const {number } = req.query;
+
+    if(number % 2 ==  0)
+    {
+        req.query['status'] =  "even"
+
+        next()
+    }
+    else
+    {
+        req.query['status'] =  "odd"
+
+        next()
+
+    }
+
+
+
+}
+
+
+exports.showOddEvenResult = (req,res) =>{
+
+    console.log(req.query)
+    if(req.query.status  == "even")
+    {
+        res.status(200).send(req.query.number + ' is an even number')
+    }
+    else
+    {
+        
+        res.status(200).send(req.query.number + ' is an odd number')
+    }
+
+
+
+
+}
+
+
+exports.fetchimageData  = (req,res) =>{
+    console.log(req.body)
+    console.log(req.file)
+    res.send("hi")
 }
