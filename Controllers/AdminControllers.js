@@ -4,6 +4,7 @@ const ProductSchema  = require('../Schemas/Products')
 const OrderSchema = require('../Schemas/OrderSchema')
 const UserSchema  = require('../Schemas/UserSchema')
 const AddressSchema  = require('../Schemas/AddressSchema')
+const {imageHost } = require('../Config/ImageHost')
 
 
 
@@ -22,10 +23,13 @@ exports.getAllProducts  =(req,res) =>{
 
 exports.addProduct  =  (req,res) =>{
 
+
+    const filePath  =  imageHost + req.file.filename
+
     const {name , price , discount , category, description , image ,  rating}  = req.body;
 
 
-    ProductSchema.insertMany({name : name , price : price , discount : discount, category :  category , description :  description ,  image : image , rating :rating}).then
+    ProductSchema.insertMany({name : name , price : price , discount : discount, category :  category , description :  description ,  image : filePath , rating :rating}).then
     ((result)=>{
         if(result.length  > 0 )
         {
@@ -193,4 +197,69 @@ exports.getDeliveryAddressById = (req,res) =>{
 
 }
 
+
+exports.updateProductImage  =  (req, res) =>{
+
+    const {p_id  } = req.body;
+    console.log(p_id)
+    
+    const filePath  =  imageHost + req.file.filename
+    console.log(filePath)
+
+    ProductSchema.updateOne({  _id : p_id  } ,  {$set : {image :  filePath}}).then((result)=>{
+        if(result.modifiedCount ==1)
+        {
+            res.status(200).send({status : 200 ,  message : "Image Updated Successfully"  , data : {image : filePath}})
+        }
+        else
+        {
+            res.status(400).send({status : 400 ,  message : "Image Not Updated"  })
+
+        }
+    }).catch((err)=>{
+        console.log(err)
+        res.status(500).send({status :  500 , messgae : "Something Went Wrong"})
+    
+    })
+
+
+}
+
+
+exports.addVariation  = (req,res) =>{
+     const {p_id, index} = req.body
+
+     let filePath   = imageHost  +req.file.filename
+
+    ProductSchema.find({_id : p_id}).then((result)=>{
+        let variation_data  =  result[0].variation;
+
+        variation_data[index]  =  filePath
+
+
+        ProductSchema.updateOne({_id : p_id}  ,  {$set:{variation : variation_data }}).then((result2)=>{
+            if(result2.modifiedCount == 1)
+            {
+                res.status(200).send({status : 200 ,  message : "Image Updated Successfully"  })
+
+            }
+            else
+            {
+                res.status(400).send({status : 400 ,  message : "Image Not Updated"  })
+
+            }
+        }).catch((err)=>{
+        console.log(err)
+        res.status(500).send({status :  500 , messgae : "Something Went Wrong"})
+    
+    })
+
+
+    }).catch((err)=>{
+        console.log(err)
+        res.status(500).send({status :  500 , messgae : "Something Went Wrong"})
+    
+    })
+
+}
 

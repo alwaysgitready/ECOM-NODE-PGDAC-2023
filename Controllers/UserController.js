@@ -8,6 +8,7 @@ const ProductSchema = require('../Schemas/Products')
 const CartSchema  =  require('../Schemas/CartSchema')
 const AddressSchema  = require('../Schemas/AddressSchema')
 const OrderSchema = require('../Schemas/OrderSchema')
+const {imageHost}  = require('../Config/ImageHost')
 
 const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
@@ -977,5 +978,7 @@ exports.showOddEvenResult = (req,res) =>{
 exports.fetchimageData  = (req,res) =>{
     console.log(req.body)
     console.log(req.file)
-    res.send("hi")
+
+    
+    res.send(`<h1>Your Image has Upload Successfully , You can View Your Imabe by click here</h1><a href='${imageHost + req.file.filename}' >View Image</a>`)
 }

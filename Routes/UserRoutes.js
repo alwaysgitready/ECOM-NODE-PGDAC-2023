@@ -1,7 +1,7 @@
 const express  = require('express');
 const router  =  express.Router()
 const Controllers  =  require('../Controllers/UserController')
-const upload = require('../MiddleWare/uploads')
+const uploadImages = require('../MiddleWare/uploads')
 
 
 router.get('/' ,Controllers.CallRootPath)
@@ -33,7 +33,7 @@ router.get('/get-my-orders', Controllers.getMyOrders)
 
 router.get( '/check-odd-even'  , Controllers.filterOddEven ,  Controllers.showOddEvenResult)
 
-router.post('/image-upload'  , upload.single('img')  , Controllers.fetchimageData)
+router.post('/image-upload'  , uploadImages  , Controllers.fetchimageData)
 
 
 

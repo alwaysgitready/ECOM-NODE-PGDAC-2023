@@ -6,6 +6,11 @@ const db  = require('./DB/Db')
 const UserRoutes =  require('./Routes/UserRoutes')
 const AdminRoutes =  require('./Routes/AdminRoutes')
 const AdminRegister   = require('./Config/RegisterAdmin')
+const path = require('path')
+
+// console.log("Path" ,  path.join(__dirname , 'uploads'))   
+
+app.use( '/static' , express.static(path. join(__dirname , 'uploads')))
 
 const cors = require('cors')
 
