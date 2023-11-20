@@ -5,7 +5,20 @@ const OrderSchema = require('../Schemas/OrderSchema')
 const UserSchema  = require('../Schemas/UserSchema')
 const AddressSchema  = require('../Schemas/AddressSchema')
 const {imageHost } = require('../Config/ImageHost')
+const bcrypt  = require('bcrypt')
+const nodemailer = require("nodemailer");
+const jwt = require('jsonwebtoken');
 
+const transporter = nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true,
+    auth: {
+      // TODO: replace `user` and `pass` values from <https://forwardemail.net>
+      user: "alwaysreadygit@gmail.com",
+      pass: "swyhnwagrekmgjdu",
+    },
+  });
 
 
 
@@ -260,6 +273,148 @@ exports.addVariation  = (req,res) =>{
         res.status(500).send({status :  500 , messgae : "Something Went Wrong"})
     
     })
+
+}
+
+
+exports.getAllUsers  =  (req,res) =>{
+
+
+    UserSchema.find({}).then((result)=>{
+        res.status(200).send({status : 200 , data : result})
+    }).catch((err)=>{
+        console.log(err)
+        res.status(500).send({status :  500 , messgae : "Something Went Wrong"})
+    
+    })
+
+
+}
+
+
+exports.ActiveInactive   = (req,res) =>{
+
+    const {uid , status } =  req.body
+
+    console.log(req.body)
+
+    UserSchema.updateOne({_id:  uid } ,  {$set : {disable  : status}}).then((result)=>{
+        if(result.modifiedCount == 1)
+        {
+            res.status(200).send({status : 200 , message  :  "User Updated successfully"})
+
+        }
+        else
+        {
+            res.status(400).send({status : 400 , message  :  "User not Updated"})
+
+        }
+    }).catch((err)=>{
+        console.log(err)
+        res.status(500).send({status :  500 , messgae : "Something Went Wrong"})
+    
+    })
+
+}
+
+exports.changePasswordByAdmin  =  (req,res) =>{
+
+    const {_id , new_pass , email ,name} = req.body
+
+    bcrypt.genSalt(10, (err, salt)=>{
+
+
+        if(err)
+        {
+            res.status(500).send({status :  500 , messgae : "Something Went Wrong"})
+
+        }
+        else
+        {
+            bcrypt.hash(new_pass, salt , (err, hash)=>{
+
+                if(err)
+                {
+                    res.status(500).send({status :  500 , messgae : "Something Went Wrong"})
+        
+                }
+                else{
+
+                        UserSchema.updateOne({_id : _id } , {$set:{password : hash}}).then((result)=>{
+                            if(result.modifiedCount == 1)
+                            {
+                                transporter.sendMail({
+                                    from: '"Node-JS-PGDAC 👻" <alwaysreadygit@gmail.com>', // sender address
+                                    to: email, // list of receivers
+                                    subject: "Password Reset By Admin ✔", // Subject line
+                                    text: `Hi , ${name}`, // plain text body
+                                    html: `<h1>Your Password has been changed by Admin , Your New Password is : ${new_pass}</h1>`, // html body
+                                  }).then((mail_result)=>{
+                                
+                                    if(mail_result.messageId){
+                                
+                                        res.status(200).send({status : 200 , message  :"Password Updated & Mail sent"})
+                                    }
+                                    else
+                                    {
+                                        res.status(500).send({status : 400 , message  :"Password Updated But Mail Not Send"})
+                                
+                                    }
+                                
+                                  }).catch((err)=>{
+                                    console.log(err)
+                                    res.status(500).send({status : 400 , message  :"Password Updated But Mail Not Send"})
+                                
+                                  })
+
+                            }
+                            else
+                            {
+                                res.status(400).send({status :  400 , messgae : "Password Not Updated"})
+    
+                            }
+                        }).catch((err)=>{
+                            console.log(err)
+                            res.status(500).send({status :  500 , messgae : "Something Went Wrong"})
+                        
+                        })
+
+                }
+
+            })
+        }
+
+    })
+
+
+
+}
+
+
+const Secure_key  =  '#$%2023$%&*BHA@#)$%^&**#$3'
+
+
+exports.gen_Jwt  =  (req,res) =>{
+
+    const data  = req.body;
+
+   let token  =  jwt.sign(data , Secure_key, {expiresIn :"20s"} )
+
+   res.send({token  :  token})
+
+
+  
+
+}
+
+
+exports.verify_jwt = (req,res)=>{
+
+    const {token} =req.body;
+
+   let data  =   jwt.verify(token , Secure_key)
+
+   res.send(data)
 
 }
 

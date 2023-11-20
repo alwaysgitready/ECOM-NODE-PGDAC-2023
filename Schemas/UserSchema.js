@@ -25,6 +25,11 @@ const UserSchema  =  new mongoose.Schema({
         type : String,
         required : true,
         default  : "Customer"
+    },
+    disable:{
+        type : Boolean,
+        required: true,
+        default : false
     }
 
 

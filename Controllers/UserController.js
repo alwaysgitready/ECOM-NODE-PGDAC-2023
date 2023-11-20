@@ -196,26 +196,38 @@ exports.userLogin = (req,res) =>{
        if(result.length >  0)
        {
 
-            bcrypt.compare(password  ,result[0].password  , (err  , auth)=>{
 
-                if(err){
-                    res.status(500).send({status : 500 , message  :"Something Went Wrong"})
-                }
-                else
-                {
-                    if(auth == false)
-                    {
-                        res.status(400).send({status : 400 , message  :"Incorrect Password"})
- 
+            if(result[0].disable == true)
+            {
+                res.status(401).send({status : 401 , message  :"Login is disabled By Admin || Please Contact to Admin for  Enableing Process "})
+
+            }
+            else
+            {
+
+                bcrypt.compare(password  ,result[0].password  , (err  , auth)=>{
+
+                    if(err){
+                        res.status(500).send({status : 500 , message  :"Something Went Wrong"})
                     }
                     else
                     {
-                            res.status(200).send({ status : 200 ,  message  :"Login Successfully "  , data : {name   : result[0].name  , _id   :result[0]._id  , mobile  : result[0].mobile ,  email   :result[0].email  ,  role : result[0].role }})
-
+                        if(auth == false)
+                        {
+                            res.status(400).send({status : 400 , message  :"Incorrect Password"})
+     
+                        }
+                        else
+                        {
+                                res.status(200).send({ status : 200 ,  message  :"Login Successfully "  , data : {name   : result[0].name  , _id   :result[0]._id  , mobile  : result[0].mobile ,  email   :result[0].email  ,  role : result[0].role }})
+    
+                        }
                     }
-                }
+    
+                } )
+            }
 
-            } )
+
 
        }
        else
