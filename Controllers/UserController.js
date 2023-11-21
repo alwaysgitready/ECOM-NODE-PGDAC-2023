@@ -1,7 +1,6 @@
 const PORT   = 9800
 const User = require('../Schemas/UserSchema')
 const UserSchema  = require('../Schemas/UserSchema')
-const nodemailer = require("nodemailer");
 const bcrypt  = require('bcrypt')
 const OtpSchema   = require('../Schemas/OtpSchema')
 const ProductSchema = require('../Schemas/Products')
@@ -9,6 +8,7 @@ const CartSchema  =  require('../Schemas/CartSchema')
 const AddressSchema  = require('../Schemas/AddressSchema')
 const OrderSchema = require('../Schemas/OrderSchema')
 const {imageHost}  = require('../Config/ImageHost')
+const nodemailer = require("nodemailer");
 
 const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",

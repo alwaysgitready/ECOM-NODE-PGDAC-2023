@@ -30,6 +30,12 @@ const UserSchema  =  new mongoose.Schema({
         type : Boolean,
         required: true,
         default : false
+    },
+    have_pwd_reset_link:{
+        type : Boolean,
+        required: true,
+        default : false
+
     }
 
 

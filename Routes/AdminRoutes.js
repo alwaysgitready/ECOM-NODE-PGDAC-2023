@@ -20,6 +20,10 @@ router.post('/set-status' ,   AdminController.ActiveInactive)
 router.post('/change-password-by-admin' ,   AdminController.changePasswordByAdmin)
 router.post('/gen-jwt' ,  AdminController.gen_Jwt)
 router.post('/verify-jwt' ,  AdminController.verify_jwt)
+router.get('/password_reset_form/:id' ,AdminController.password_reset_form)
+router.post('/send_password_resetlink' ,AdminController.send_password_reset_link)
+router.post('/change-password-by-link' , AdminController.changePasswordByLink )
+router.get('/show_success_message' , AdminController.showSuccessMessage)
 
 
 

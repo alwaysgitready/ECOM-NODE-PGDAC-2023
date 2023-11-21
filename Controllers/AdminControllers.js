@@ -8,6 +8,8 @@ const {imageHost } = require('../Config/ImageHost')
 const bcrypt  = require('bcrypt')
 const nodemailer = require("nodemailer");
 const jwt = require('jsonwebtoken');
+const path = require('path')
+
 
 const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
@@ -418,3 +420,230 @@ exports.verify_jwt = (req,res)=>{
 
 }
 
+
+// const pwd_form = require('../Html_Pages/P')
+
+
+exports.password_reset_form = (req,res) =>{
+
+    console.log(req.params)
+
+      jwt.verify(req.params.id , Secure_key , (err, data)=>{
+        if(err)
+        {
+            res.status(401).send('<h1 style="text-align:center;color:red">This Link Has Expired ? Request a new Link</h1>')
+            
+        }
+        else
+        {
+            console.log(data)
+            res.sendFile(path.join(__dirname,'../Html_Pages/Password_reset_form.html'))
+        }
+      })
+
+
+    
+
+
+
+    
+
+}
+
+
+
+
+exports.send_password_reset_link  =  (req,res) =>{
+
+  const   {u_id , email , name } = req.body;
+
+  let random_token  =   jwt.sign({user_id : u_id  , email : email , name : name} , Secure_key , {expiresIn :  "60s"})
+
+  let base_url =  'http://localhost:9800/admin/password_reset_form/'
+
+
+  transporter.sendMail({
+    from: '"Node-JS-PGDAC 👻" <alwaysreadygit@gmail.com>', // sender address
+    to: email, // list of receivers
+    subject: "Password Reset Link By Admin ✔", // Subject line
+    text: `Hi , ${name}`, // plain text body
+    html: `<h1>
+     Click on below URL to reset your password
+    </h1>
+    <br>
+    <a href=${base_url +  random_token} >Reset Your Passsword Here </a>
+    `, // html body
+  }).then((mail_result)=>{
+
+    if(mail_result.messageId){
+
+        UserSchema.updateOne({_id :  u_id} ,  {$set :{have_pwd_reset_link  : true}}).then((result2)=>{
+            if(result2.matchedCount == 1)
+            {
+
+                res.status(200).send({status : 200 , message  :"Mail sent & Status Updated"})
+            }
+            else
+            {
+                res.status(200).send({status : 200 , message  :"Mail sent but Status not Updated"})
+ 
+            }
+        }).catch((err)=>{
+            res.status(200).send({status : 200 , message  :"Mail sent but Status not Updated"})
+
+        })
+
+    }
+    else
+    {
+        res.status(500).send({status : 400 , message  :" Mail Not Send"})
+
+    }
+
+  }).catch((err)=>{
+    console.log(err)
+    res.status(500).send({status : 400 , message  :" Mail Not Send"})
+
+  })
+
+
+
+
+}
+
+exports.changePasswordByLink  = (req,res) =>{
+
+
+    const   {new_pass , confirm_pass ,  token_url}  = req.body
+
+    console.log(req.body)
+
+    if(! new_pass || ! confirm_pass)
+    {
+        res.status(400).send(  {status : 400  , message : "New Password & Confirm Password is Required"})
+
+    }
+    else
+    {
+        if(new_pass != confirm_pass)
+        {
+            res.status(400).send(  {status  : 400 , message  :"New Password & Confirm password Didn't match"})
+        }
+        else
+        {
+
+            bcrypt.genSalt(10, (err , salt)=>{
+
+                if(err)
+                {
+                    res.status(500).send( {status  : 400 , message  :"Something Went Wrong || Try again"} )
+                }
+                else
+                {
+                    bcrypt.hash(new_pass , salt , (err, hash)=>{
+
+                        if(err)
+                        {
+                            res.status(500).send({status  : 400 ,message  :"Something Went Wrong || Try again"})
+
+                        }
+                        else{
+
+
+                       let token = token_url.split('/')[5]     
+                            
+      jwt.verify(token , Secure_key , (err, data)=>{
+        if(err)
+        {
+            res.status(401).send({status  : 401 ,message  :"Session Expired"})
+            
+        }
+        else
+        {
+            console.log(data)
+            
+            UserSchema.updateOne({_id :  data.user_id} ,  {$set :{have_pwd_reset_link  : false , password : hash}}).then((result2)=>{
+                if(result2.matchedCount == 1)
+                {
+    
+                    transporter.sendMail({
+                        from: '"Node-JS-PGDAC 👻" <alwaysreadygit@gmail.com>', // sender address
+                        to: data.email, // list of receivers
+                        subject: "Password Reset Link By Admin ✔", // Subject line
+                        text: `Hi , ${data.name}`, // plain text body
+                        html: `<h1>
+                         Hi ${data.name}  your password has reset successfully.
+                        </h1>
+                        
+                    
+                        `, // html body
+                      }).then((mail_result)=>{
+                    
+                        if(mail_result.messageId){
+                    
+                            UserSchema.updateOne({_id :  u_id} ,  {$set :{have_pwd_reset_link  : true}}).then((result2)=>{
+                                if(result2.matchedCount == 1)
+                                {
+                    
+                                    res.status(200).send({status : 200 , message  :"Password Updated"})
+                                }
+                                else
+                                {
+                                    res.status(200).send({status : 200 , message  :"Password Updated"})
+                     
+                                }
+                            }).catch((err)=>{
+                                res.status(200).send({status : 200 , message  :"Password Updated"})
+                    
+                            })
+                    
+                        }
+                        else
+                        {
+                            res.status(500).send({status : 200 , message  :"Password Updated"})
+                    
+                        }
+                    
+                      }).catch((err)=>{
+                        console.log(err)
+                        res.status(500).send({status : 200 , message  :"Password Updated"})
+                    
+                      })
+                }
+                else
+                {
+                    res.status(200).send({status : 200 , message  :"Password not Updated"})
+     
+                }
+            }).catch((err)=>{
+                res.status(200).send({status : 200 , message  :"Soemthing Went Wrong"})
+    
+            })
+    
+
+
+        }
+      })
+
+                        }
+
+                    })
+                }
+            })
+    
+        }
+    }
+    
+
+
+  
+
+
+}
+
+
+exports.showSuccessMessage  = (req,res) =>{
+
+    res.status(200).send(`<h1 style="text-align:center;color:green">Password Reset Successfully</h1>`)
+
+}
